@@ -1,0 +1,11 @@
+# Windows default autosave extension of Matlab editor
+*.asv
+
+# OSX / *nix default autosave extension of Matlab editor
+*.m~
+
+# Compiled MEX binaries (all platforms)
+*.mex*
+
+# Simulink Code Generation
+slprj/
