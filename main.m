@@ -3,8 +3,8 @@
 clc;
 
 %Settings
-comport = 9;
-updateperiod = 1000; %milliseconds > 1
+comport = 4;
+updateperiod = 250; %milliseconds > 1
 
 %Set global variables
 global gui com kitt updater;

@@ -23,8 +23,12 @@ classdef com_class < handle
 
             disp('Opening connection...');
 
-        %    result = EPOCommunications('open', comport)
-            %TODO: what is returned? status?
+            result = EPOCommunications('open', self.comport);
+            
+            if ~result
+                disp('ERROR: could not open comport.');
+                return;
+            end
 
             self.status = 1;
         end
@@ -37,16 +41,15 @@ classdef com_class < handle
 
             disp('Closing connection...');
 
-            %EPOCommunications('close')
-            %TODO: what is returned? status?
+            EPOCommunications('close');
 
             self.status = 0;
         end
         
         %Get KITT's status (NOT connection status!)
         function status_kitt = get_status(self)
-            %self.status_raw = EPOCommunications('transmit', 'S');
-            self.status_kitt_raw = dummystatus(); %temporary
+            self.status_kitt_raw = EPOCommunications('transmit', 'S');
+            %self.status_kitt_raw = dummystatus(); %temporary
             
             %Return formatted status
             status_kitt = self.format_status_kitt(self.status_kitt_raw);
@@ -56,25 +59,17 @@ classdef com_class < handle
         %   direction: Integer between 100 and 200, 150 is neutral.
         %   speed    : Integer between 135 and 165, 150 is neutral.
         %              Smaller than 150 means backwards, larger forwards.
-        function status_kitt = send_drive_command(self, direction, speed)
+        function send_drive_command(self, direction, speed)
             command = ['D' int2str(direction) ' ' int2str(speed)]
-            %self.status_raw = EPOCommunications('transmit', command);
-            %TODO: test if it returns status too
-            self.status_kitt_raw = dummystatus(); %temporary
-            
-            %Return formatted status
-            status_kitt = self.format_status_kitt(self.status_kitt_raw);
+            EPOCommunications('transmit', command);
+            %self.status_kitt_raw = dummystatus(); %temporary
         end
         
         %Turn audio beacon on (1) or off (0)
-        function status_kitt = set_audio_beacon(self, onoff)
+        function set_audio_beacon(self, onoff)
             command = ['A' ~logical(onoff)]
-            %self.status_raw = EPOCommunications('transmit', command);
-            %TODO: test if it returns status too
-            self.status_kitt_raw = dummystatus(); %temporary
-            
-            %Return formatted status
-            status_kitt = self.format_status_kitt(self.status_kitt_raw);
+            EPOCommunications('transmit', command);
+            %self.status_kitt_raw = dummystatus(); %temporary
         end
         
     end
@@ -86,8 +81,8 @@ classdef com_class < handle
         function formatted = format_status_kitt(raw)
             %TODO: check validity of data here
             
-            s = strsplit(raw, '\\n'); %TODO: test whether escaping needed
-            for i = 1:length(s)-1 %TODO: check whether indeed ends with \n
+            s = strsplit(raw, '\n');
+            for i = 1:length(s)-1
                 si = char(s(i));
                 switch si(1)
                     case 'D' %drive command

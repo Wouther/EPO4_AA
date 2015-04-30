@@ -64,7 +64,17 @@ classdef gui_class < handle
         end
         
         function panic(self)
-            disp('PANIC'); %TODO: stop driving, etc. (!!!)
+            global kitt updater;
+            
+            disp('PANIC');
+            
+            %Stop timer
+            if strcmp(get(updater, 'Running'), 'on')
+                stop(updater);
+            end
+            
+            %Stop driving
+            kitt.drive(150, 150);
         end
         
         function callback_keypress(self, ~, event)
@@ -97,13 +107,16 @@ classdef gui_class < handle
         
         %TODO: also stop driving, etc. here!!!
         function callback_button_stop(self)
-            global com updater;
+            global com updater kitt;
 
             %Stop timer
             if strcmp(get(updater, 'Running'), 'on')
                 stop(updater);
             end
-
+            
+            %Stop driving
+            kitt.drive(150, 150);
+            
             %Close connection
             com.close();
         end

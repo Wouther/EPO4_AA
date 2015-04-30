@@ -18,9 +18,18 @@ function callback_updater(~, event, ~)
     disp('...');
 
     %Get KITT's status
+    t = tic
     kitt.get_status()
+    toc(t)
     gui.setrawtext(com.status_kitt_raw);
     
+    if kitt.status.distance(1) < 100
+        kitt.drive(150, 150);
+    else
+        kitt.drive(150, 156);
+    end
+    
+    %kitt.drive(150, 155); %straight slowly
     
     %TODO: call/execute controller
     
