@@ -32,8 +32,21 @@ classdef gui_class < handle
             %TODO: update gui with status data
         end
         
+        %Make connection status visible in gui
+        function update_status_com(self)
+            global com;
+            
+            if com.status
+                set(self.handle.button_connect,    'FontWeight', 'bold');
+                set(self.handle.button_disconnect, 'FontWeight', 'normal');
+            else
+                set(self.handle.button_connect,    'FontWeight', 'normal');
+                set(self.handle.button_disconnect, 'FontWeight', 'bold');
+            end
+        end
+        
         function exit(self)
-            global com updater;
+            global com updater kitt;
             
             %If still connected, offer to close it
             if com.status
@@ -56,7 +69,15 @@ classdef gui_class < handle
                     stop(updater);
                 end
                 delete(updater)
-
+                
+                %Stop driving
+                kitt.drive(150, 150);
+                
+                %Close connection
+                if com.status
+                    com.close();
+                end
+                
                 %Close window
                 delete(self.fig);
             end
@@ -64,13 +85,15 @@ classdef gui_class < handle
         end
         
         function panic(self)
-            global kitt updater;
+            global gui kitt updater;
             
             disp('PANIC');
             
             %Stop timer
             if strcmp(get(updater, 'Running'), 'on')
                 stop(updater);
+                set(gui.handle.button_start_updater, 'FontWeight', 'normal');
+                set(gui.handle.button_stop_updater,  'FontWeight', 'bold');
             end
             
             %Stop driving
@@ -88,38 +111,6 @@ classdef gui_class < handle
             %Exit on window close
             self.exit();
         end        
-        
-        function callback_button_panic(self)
-            self.panic();
-        end
-    
-        function callback_button_start(self)
-            global com updater;
-
-            %Open connection
-            com.open();
-
-            %Start timer
-            if strcmp(get(updater, 'Running'), 'off')
-                start(updater);
-            end
-        end
-        
-        %TODO: also stop driving, etc. here!!!
-        function callback_button_stop(self)
-            global com updater kitt;
-
-            %Stop timer
-            if strcmp(get(updater, 'Running'), 'on')
-                stop(updater);
-            end
-            
-            %Stop driving
-            kitt.drive(150, 150);
-            
-            %Close connection
-            com.close();
-        end
         
     end
     

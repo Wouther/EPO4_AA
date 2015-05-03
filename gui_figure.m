@@ -22,7 +22,7 @@ function varargout = gui_figure(varargin)
 
 % Edit the above text to modify the response to help gui_figure
 
-% Last Modified by GUIDE v2.5 26-Apr-2015 14:04:32
+% Last Modified by GUIDE v2.5 04-May-2015 00:14:14
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -75,26 +75,47 @@ varargout{1} = handles.output;
 
 % --- Executes on button press in button_panic.
 function button_panic_Callback(hObject, eventdata, handles)
-% hObject    handle to button_panic (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
     global gui;
-    gui.callback_button_panic();
+    gui.panic();
 
     
-% --- Executes on button press in button_stop.
-function button_stop_Callback(hObject, eventdata, handles)
-% hObject    handle to button_stop (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-    global gui;
-    gui.callback_button_stop();
+% --- Executes on button press in button_start_updater.
+function button_start_updater_Callback(hObject, eventdata, handles)
+    global gui updater;
+
+    %Start timer
+    if strcmp(get(updater, 'Running'), 'off')
+        start(updater);
+        set(gui.handle.button_start_updater, 'FontWeight', 'bold');
+        set(gui.handle.button_stop_updater,  'FontWeight', 'normal');
+        disp('Updater started.');
+    end
+
+    
+% --- Executes on button press in button_stop_updater.
+function button_stop_updater_Callback(hObject, eventdata, handles)
+    global gui updater;
+    
+    %Stop timer
+    if strcmp(get(updater, 'Running'), 'on')
+        stop(updater);
+        set(gui.handle.button_start_updater, 'FontWeight', 'normal');
+        set(gui.handle.button_stop_updater,  'FontWeight', 'bold');
+        disp('Updater stopped.');
+    end
 
 
-% --- Executes on button press in button_start.
-function button_start_Callback(hObject, eventdata, handles)
-% hObject    handle to button_start (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-    global gui;
-    gui.callback_button_start();
+% --- Executes on button press in button_connect.
+function button_connect_Callback(hObject, eventdata, handles)
+    global com;
+    
+    %Open connection
+    com.open();
+
+
+% --- Executes on button press in button_disconnect.
+function button_disconnect_Callback(hObject, eventdata, handles)
+    global com;
+    
+    %Close connection
+    com.close();

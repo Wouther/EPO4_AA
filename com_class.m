@@ -11,15 +11,19 @@ classdef com_class < handle
 
         %Constructor
         function self = com_class(comportnr)
-            self.status  = 0;
-            self.comport = comportnr;
+            global gui;
             
+            self.status  = 0;
+            
+            self.comport = comportnr;
             if comportnr < 0
                 disp('Note: using dummy connection.');
             end
         end
         
         function open(self)
+            global gui;
+            
             if self.status
                 disp('Connection can''t be opened as it is already open.');
                 return;
@@ -33,12 +37,17 @@ classdef com_class < handle
             if ~result
                 disp('ERROR: could not open comport.');
                 return;
+            else
+                disp('Done.');
             end
 
             self.status = 1;
+            gui.update_status_com();
         end
         
         function close(self)
+            global gui;
+            
             if ~self.status
                 disp('Connection can''t be closed as it is not open.');
                 return;
@@ -47,8 +56,11 @@ classdef com_class < handle
             disp('Closing connection...');
 
             self.send('close');
-
+            
+            disp('Done.');
+            
             self.status = 0;
+            gui.update_status_com();
         end
         
         %Get KITT's status (NOT connection status!)
