@@ -12,7 +12,11 @@ classdef com_class < handle
         %Constructor
         function self = com_class(comportnr)
             self.status  = 0;
-            self.comport = ['\\.\COM' int2str(comportnr)];
+            self.comport = comportnr;
+            
+            if comportnr < 0
+                disp('Note: using dummy connection.');
+            end
         end
         
         function open(self)
@@ -23,8 +27,9 @@ classdef com_class < handle
 
             disp('Opening connection...');
 
-            result = EPOCommunications('open', self.comport);
-            
+            result = self.send('open', ['\\.\COM' int2str(self.comport)]);
+
+            %TODO: useless error? returns 0 when ok?
             if ~result
                 disp('ERROR: could not open comport.');
                 return;
@@ -41,15 +46,14 @@ classdef com_class < handle
 
             disp('Closing connection...');
 
-            EPOCommunications('close');
+            self.send('close');
 
             self.status = 0;
         end
         
         %Get KITT's status (NOT connection status!)
         function status_kitt = get_status(self)
-            self.status_kitt_raw = EPOCommunications('transmit', 'S');
-            %self.status_kitt_raw = dummystatus(); %temporary
+            self.status_kitt_raw = self.send('transmit', 'S');
             
             %Return formatted status
             status_kitt = self.format_status_kitt(self.status_kitt_raw);
@@ -61,15 +65,24 @@ classdef com_class < handle
         %              Smaller than 150 means backwards, larger forwards.
         function send_drive_command(self, direction, speed)
             command = ['D' int2str(direction) ' ' int2str(speed)]
-            EPOCommunications('transmit', command);
-            %self.status_kitt_raw = dummystatus(); %temporary
+            self.send('transmit', command);
         end
         
         %Turn audio beacon on (1) or off (0)
         function set_audio_beacon(self, onoff)
             command = ['A' ~logical(onoff)]
-            EPOCommunications('transmit', command);
-            %self.status_kitt_raw = dummystatus(); %temporary
+            self.send('transmit', command);
+        end
+        
+        %Wrap communications function to be able to test code without KITT.
+        %Chooses between EPOCommunications.mex64 and EPOCommunications_dummy.m
+        function varargout = send(self, varargin)
+            %note: odd syntax because of Matlab quirk
+            if self.comport < 0
+                [varargout{1:nargout}] = EPOCommunications_dummy(varargin{:});
+            else
+                [varargout{1:nargout}] = EPOCommunications(varargin{:});
+            end
         end
         
     end
