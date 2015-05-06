@@ -46,8 +46,8 @@ function value = interpolate_curves(curves, curves_lookup, point)
         else %interpolation necessary and possible
             di = [di1 (di1+1)];
             y = curves(ci).y(di);
-            f = curves(ci).f(di);
-            value = f(1) + ((f(2)-f(1)) / (y(2)-y(1))) * (y0-y(1));
+            ff = curves(ci).f(di); %note: do not name 'f' (scoping issues)
+            value = ff(1) + ((ff(2)-ff(1)) / (y(2)-y(1))) * (y0-y(1));
         end
     end
 
