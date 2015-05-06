@@ -5,12 +5,15 @@ classdef com_class < handle
         comport;
         status; %connection status
         status_kitt_raw; %KITT's last raw status text
+        rawout; %fields:
+        %.suppress (setting)
+        %.last (raw text of last output)
     end
     
     methods
 
         %Constructor
-        function self = com_class(comportnr)
+        function self = com_class(comportnr, suppresscomout)
             global gui;
             
             self.status  = 0;
@@ -19,6 +22,8 @@ classdef com_class < handle
             if comportnr < 0
                 disp('Note: using dummy connection.');
             end
+            
+            self.rawout.suppress = suppresscomout;
         end
         
         function open(self)
@@ -93,7 +98,14 @@ classdef com_class < handle
             if self.comport < 0
                 [varargout{1:nargout}] = EPOCommunications_dummy(varargin{:});
             else
-                [varargout{1:nargout}] = EPOCommunications(varargin{:});
+                if self.rawout.suppress
+                    disp('yes');
+                    [self.rawout.last, varargout{1:nargout}] = ...
+                        evalc('EPOCommunications(varargin{:})');
+                else
+                    disp('no');
+                    [varargout{1:nargout}] = EPOCommunications(varargin{:});
+                end
             end
         end
         
