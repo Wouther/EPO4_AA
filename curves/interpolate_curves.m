@@ -8,7 +8,8 @@
 % generating curve). Point is input as [x y].
 function value = interpolate_curves(curves, curves_lookup, point)
 
-    [x0 y0] = point;
+    x0 = point(1);
+    y0 = point(2);
 
     %find nearest curves
     ci1 = find(curves_lookup <= x0, 1, 'last'); %curve index
@@ -21,11 +22,12 @@ function value = interpolate_curves(curves, curves_lookup, point)
         disp('Warning: attempt to interpolate after last curve.');
         value = getvalueoncurve(ci1, y0); %TODO: extrapolate linearly?!
     else %interpolation necessary and possible
-        ci2 = ci1 + 1;
-        [x1, x2] = curves([ci1 ci2]).x;
-        f1  = getvalueoncurve(ci1, y0);
-        f2  = getvalueoncurve(ci2, y0);
-        value = f1 + ((f2-f1) / (x2-x1)) * (x0-x1);
+        ci   = [ci1 (ci1+1)];
+        x(1) = curves(ci(1)).x;
+        x(2) = curves(ci(2)).x;
+        f(1) = getvalueoncurve(ci(1), y0);
+        f(2) = getvalueoncurve(ci(2), y0);
+        value = f(1) + ((f(2)-f(1)) / (x(2)-x(1))) * (x0-x(1));
     end
 
 
@@ -42,10 +44,10 @@ function value = interpolate_curves(curves, curves_lookup, point)
             disp('Warning: attempt to interpolate after last data point.');
             value = curves(ci).f(di1); %TODO: extrapolate linearly?!
         else %interpolation necessary and possible
-            di2 = di1 + 1;
-            [y1, y2] = curves(ci).y([di1 di2]);
-            [f1, f2] = curves(ci).f([di1 di2]);
-            value = f1 + ((f2-f1) / (y2-y1)) * (y0-y1);
+            di = [di1 (di1+1)];
+            y = curves(ci).y(di);
+            f = curves(ci).f(di);
+            value = f(1) + ((f(2)-f(1)) / (y(2)-y(1))) * (y0-y(1));
         end
     end
 
