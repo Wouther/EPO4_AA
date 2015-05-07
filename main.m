@@ -3,9 +3,9 @@
 clc;
 
 %Settings
-workoffline    = true; %use dummy communications instead of bluetooth
+workoffline    = false; %use dummy communications instead of bluetooth
 suppresscomout = true; %suppress output of 'EPOCommunications' mex-function
-comport        = 4;
+comport        = 7;
 updateperiod   = 250; %milliseconds > 1
 
 %Set global variables

@@ -99,11 +99,9 @@ classdef com_class < handle
                 [varargout{1:nargout}] = EPOCommunications_dummy(varargin{:});
             else
                 if self.rawout.suppress
-                    disp('yes');
                     [self.rawout.last, varargout{1:nargout}] = ...
                         evalc('EPOCommunications(varargin{:})');
                 else
-                    disp('no');
                     [varargout{1:nargout}] = EPOCommunications(varargin{:});
                 end
             end
