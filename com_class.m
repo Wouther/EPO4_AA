@@ -4,10 +4,11 @@ classdef com_class < handle
     properties
         comport;
         status; %connection status
-        status_kitt_raw; %KITT's last raw status text
         rawout; %fields:
         %.suppress (setting)
-        %.last (raw text of last output)
+        %.last_output (raw text of last output)
+        %.last_message (last displayed message. only available when
+        %   suppress is true)
     end
     
     methods
@@ -70,10 +71,10 @@ classdef com_class < handle
         
         %Get KITT's status (NOT connection status!)
         function status_kitt = get_status(self)
-            self.status_kitt_raw = self.send('transmit', 'S');
+            self.rawout.last_output = self.send('transmit', 'S');
             
             %Return formatted status
-            status_kitt = self.format_status_kitt(self.status_kitt_raw);
+            status_kitt = self.format_status_kitt(self.rawout.last_output);
         end
 
         %Send drive command to KITT.
@@ -93,18 +94,24 @@ classdef com_class < handle
         
         %Wrap communications function to be able to test code without KITT.
         %Chooses between EPOCommunications.mex64 and EPOCommunications_dummy.m
-        function varargout = send(self, varargin)
-            %note: odd syntax because of Matlab quirk
+        function output = send(self, varargin)
+            %Dummy or mex-function?
+            %note: odd syntax "{:}" because of Matlab quirk
             if self.comport < 0
-                [varargout{1:nargout}] = EPOCommunications_dummy(varargin{:});
+                command = 'EPOCommunications_dummy(varargin{:})';
             else
-                if self.rawout.suppress
-                    [self.rawout.last, varargout{1:nargout}] = ...
-                        evalc('EPOCommunications(varargin{:})');
-                else
-                    [varargout{1:nargout}] = EPOCommunications(varargin{:});
-                end
+                command = 'EPOCommunications(varargin{:})';
             end
+            
+            %Suppress output or not?
+            if self.rawout.suppress
+                [self.rawout.last_message, self.rawout.last_output] = ...
+                    evalc(command);
+            else
+                self.rawout.last_output = eval(command);
+            end
+            
+            output = self.rawout.last_output;
         end
         
     end
