@@ -12,6 +12,11 @@ classdef kitt_class < handle
             global com;
             
             status_original = com.get_status();
+            if ~isstruct(status_original) && status_original == false
+                disp('Error: getting status failed. ''status''-field unchanged.');
+                status = false;
+                return;
+            end
             status = self.normalize_status(status_original);
             self.status = status;
         end

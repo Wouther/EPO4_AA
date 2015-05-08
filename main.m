@@ -3,16 +3,17 @@
 clc;
 
 %Settings
-workoffline  = true; %use dummy communications instead of bluetooth
-comport      = 4;
-updateperiod = 250; %milliseconds > 1
+workoffline    = false; %use dummy communications instead of bluetooth
+suppresscomout = true; %suppress output of 'EPOCommunications' mex-function
+comport        = 7;
+updateperiod   = 250; %milliseconds > 1
 
 %Set global variables
 global gui com kitt updater;
 
 %Initialise
 gui  = gui_class();
-com  = com_class((~workoffline)*comport - (workoffline));
+com  = com_class((~workoffline)*comport - (workoffline), suppresscomout);
 kitt = kitt_class();
 
 %Create timer
