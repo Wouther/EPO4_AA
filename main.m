@@ -23,6 +23,10 @@ gui  = gui_class();
 com  = com_class((~workoffline)*comport - (workoffline), suppresscomout);
 kitt = kitt_class();
 
+%Add all parent folders to path
+%Makes functions/classes accessible to scripts in folders.
+addpath('..', '-begin');
+
 %Create timer
 updater = timer(...
     'ExecutionMode', 'fixedRate', ...     %Run repeatedly
