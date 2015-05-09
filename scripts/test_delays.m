@@ -10,6 +10,12 @@ function [] = test_delays()
     h = graph_data(data);
     h.CurrentAxes.Title.String = 'Average succes rate for dummy';
     disp(['Done.' char(10)]);
+
+    disp('Testing drive-to-status delay...');
+    data = test_delays_by_handle(@test_drive_to_status_delay)
+    h = graph_data(data);
+    h.CurrentAxes.Title.String = 'Average succes rate for drive-status sequence';
+    disp(['Done.' char(10)]);
     
     disp('Testing multiple status requests...');
     data = test_delays_by_handle(@test_status_delay)
@@ -20,6 +26,18 @@ function [] = test_delays()
     %Between multiple status requests
     function succes = test_status_delay(delay)
         kitt.get_status();
+        pause(delay/1e3);
+        status = kitt.get_status();
+        if isstruct(status)
+            succes = 1;
+        else
+            succes = 0;
+        end
+    end
+
+    %Between drive command and status request
+    function succes = test_drive_to_status_delay(delay)
+        kitt.drive(150, 150);
         pause(delay/1e3);
         status = kitt.get_status();
         if isstruct(status)
