@@ -8,6 +8,13 @@ suppresscomout = true; %suppress output of 'EPOCommunications' mex-function
 comport        = 7;
 updateperiod   = 250; %milliseconds > 1
 
+%Handle unclean exit from last run or when gui still open
+if exist('gui', 'var') && ~isempty(gui.fig)
+    delete(gui.fig);
+end
+
+clearvars gui com kitt updater;
+
 %Set global variables
 global gui com kitt updater;
 
