@@ -22,7 +22,7 @@ function varargout = gui_figure(varargin)
 
 % Edit the above text to modify the response to help gui_figure
 
-% Last Modified by GUIDE v2.5 09-May-2015 12:03:47
+% Last Modified by GUIDE v2.5 09-May-2015 15:00:21
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -119,3 +119,11 @@ function button_disconnect_Callback(hObject, eventdata, handles)
     
     %Close connection
     com.close();
+
+
+% --- Executes on button press in button_get_status.
+function button_get_status_Callback(hObject, eventdata, handles)
+    global gui kitt;
+    set(gui.handle.button_get_status, 'FontWeight', 'bold');
+    kitt.get_status();
+    set(gui.handle.button_get_status,  'FontWeight', 'normal');
