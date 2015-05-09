@@ -14,11 +14,11 @@ classdef kitt_class < handle
         % wait between tries as first argument. Optional: maximum number of
         % tries as second argument.
         function [status, ntries] = get_status(self, varargin)
-            global com;
+            global com gui;
             
             ntries = 0;
             while true
-                status_original = false; %com.get_status();
+                status_original = com.get_status();
                 if isstruct(status_original) %succeeded to get status
                     break
                 end
@@ -37,6 +37,7 @@ classdef kitt_class < handle
             
             status = self.normalize_status(status_original);
             self.status = status;
+            gui.update_status_kitt();
         end
         
         %TODO: use normalized stuff
