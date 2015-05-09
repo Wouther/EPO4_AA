@@ -9,7 +9,7 @@ classdef kitt_class < handle
     methods
        
         function status = get_status(self)
-            global com;
+            global com gui;
             
             status_original = com.get_status();
             if ~isstruct(status_original) && status_original == false
@@ -19,6 +19,7 @@ classdef kitt_class < handle
             end
             status = self.normalize_status(status_original);
             self.status = status;
+            gui.update_status_kitt();
         end
         
         %TODO: use normalized stuff

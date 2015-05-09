@@ -16,9 +16,19 @@ classdef gui_class < handle
 
             %Initialise
             set(self.handle.figure1, 'Name', 'KITT GUI');
-            self.update_statusbar('axes_status_battery', 0);
+            self.update_statusbar('axes_status_direction', 0, 'bi');
+            self.update_statusbar('axes_status_speed',     0, 'bi');
             self.update_statusbar('axes_status_distance1', 0);
-
+            self.update_statusbar('axes_status_distance2', 0);
+            self.update_statusbar('axes_status_battery',   0);
+            self.update_statusbar('axes_status_audio',     0);
+            self.update_textfield('text_status_direction', '');
+            self.update_textfield('text_status_speed',     '');
+            self.update_textfield('text_status_distance1', '');
+            self.update_textfield('text_status_distance2', '');
+            self.update_textfield('text_status_battery',   '');
+            self.update_textfield('text_status_time',      'never');
+            
             %Listen to key presses
             set(self.fig, 'KeyPressFcn', @self.callback_keypress);
 
@@ -26,31 +36,68 @@ classdef gui_class < handle
             set(self.fig, 'CloseRequestFcn', @self.callback_close);
         end
 
-        %Update a specific (vertical) statusbar.
-        function update_statusbar(self, axesname, fraction)
+        %Update a specific (horizontal) statusbar.
+        %Optionally pass along the bar's desired colour or 'bi' to make the
+        % bar bidirectional. When bidirectional, fraction can be negative.
+        function update_statusbar(self, axesname, fraction, varargin)
             ax = eval(['self.handle.' axesname]);
-            ylim = ax.YLim;
-            h  = ylim(2) - ylim(1);
-            bar(ax, 0, fraction*h, 1);
+            lim = [0 1];
+            c = 'k'; %default colour
+            if ~isempty(varargin) && ischar(varargin{1})
+                if strcmp(varargin{1}, 'bi')
+                    lim(1) = -1;
+                else
+                    c = varargin{1};
+                end
+            end
+                
+            barh(ax, 0, fraction, 1, c);
             
             %TODO: why does this have to be set every time?
-            set(ax, 'YLim', ylim);
+            set(ax, 'XLim', lim);
             set(ax, 'XTick', []);
             set(ax, 'YTick', []);
             set(ax, 'XTickLabel', []);
             set(ax, 'YTickLabel', []);
         end
         
-        function setrawtext(self, text)
-            set(self.handle.text_raw, 'String', text);
+        %Update a specific text field.
+        function update_textfield(self, fieldname, text)
+            h = eval(['self.handle.' fieldname]);
+            set(h, 'String', text);
         end
         
-        function update_status(self)
-            %TODO
-        end
-        
-        function update(self) %TODO: rename to update_status() or something?
-            %TODO: update gui with status data
+        function update_status_kitt(self)
+            global kitt;
+            
+            batt_frac = kitt.status.battery/18e3;
+            if batt_frac < 0.5
+                batt_col = 'r';
+            elseif batt_frac < 0.75
+                batt_col = 'y';
+            else
+                batt_col = 'g';
+            end
+            
+            self.update_statusbar('axes_status_direction', ...
+                (kitt.status.direction-150)/50, 'bi');
+            self.update_statusbar('axes_status_speed', ...
+                (kitt.status.direction-150)/15, 'bi');
+            self.update_statusbar('axes_status_distance1', kitt.status.distance(1)/299);
+            self.update_statusbar('axes_status_distance2', kitt.status.distance(2)/299);
+            self.update_statusbar('axes_status_battery',   batt_frac, batt_col);
+            self.update_statusbar('axes_status_audio',     kitt.status.audio);
+
+            self.update_textfield('text_status_direction', kitt.status.direction);
+            self.update_textfield('text_status_speed',     kitt.status.speed);
+            self.update_textfield('text_status_distance1', ...
+                [int2str(kitt.status.distance(1)) 'cm']);
+            self.update_textfield('text_status_distance2', ...
+                [int2str(kitt.status.distance(2)) 'cm']);
+            self.update_textfield('text_status_battery',   ...
+                [num2str(kitt.status.battery/1e3, '%.1f') 'V']);
+            self.update_textfield('text_status_time',      ...
+                char(datetime('now', 'TimeZone','local', 'Format','HH:mm:ss.S')));
         end
         
         %Make connection status visible in gui
@@ -64,6 +111,12 @@ classdef gui_class < handle
                 set(self.handle.button_connect,    'FontWeight', 'normal');
                 set(self.handle.button_disconnect, 'FontWeight', 'bold');
             end
+        end
+        
+        %Update gui with all available data
+        function update(self)
+            self.update_status_com();
+            self.update_status_kitt();
         end
         
         function exit(self)
