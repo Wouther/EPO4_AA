@@ -16,6 +16,8 @@ classdef gui_class < handle
 
             %Initialise
             set(self.handle.figure1, 'Name', 'KITT GUI');
+            self.update_statusbar('axes_status_battery', 0);
+            self.update_statusbar('axes_status_distance1', 0);
 
             %Listen to key presses
             set(self.fig, 'KeyPressFcn', @self.callback_keypress);
@@ -24,8 +26,27 @@ classdef gui_class < handle
             set(self.fig, 'CloseRequestFcn', @self.callback_close);
         end
 
+        %Update a specific (vertical) statusbar.
+        function update_statusbar(self, axesname, fraction)
+            ax = eval(['self.handle.' axesname]);
+            ylim = ax.YLim;
+            h  = ylim(2) - ylim(1);
+            bar(ax, 0, fraction*h, 1);
+            
+            %TODO: why does this have to be set every time?
+            set(ax, 'YLim', ylim);
+            set(ax, 'XTick', []);
+            set(ax, 'YTick', []);
+            set(ax, 'XTickLabel', []);
+            set(ax, 'YTickLabel', []);
+        end
+        
         function setrawtext(self, text)
             set(self.handle.text_raw, 'String', text);
+        end
+        
+        function update_status(self)
+            %TODO
         end
         
         function update(self) %TODO: rename to update_status() or something?
