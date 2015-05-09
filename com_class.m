@@ -110,7 +110,9 @@ classdef com_class < handle
             %Suppress output or not?
             if self.rawout.suppress
                 [self.rawout.last_message, self.rawout.last_output] = ...
-                    evalc(command);
+                    evalc(command); %TODO: known error when mex-function
+                    % returns no output at all. Hard to solve. Only occurs
+                    % when trying to send commands without KITT available?
             else
                 self.rawout.last_output = eval(command);
             end

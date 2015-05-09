@@ -21,7 +21,6 @@ function callback_updater(~, event, ~)
     t = tic
     kitt.get_status()
     toc(t)
-    gui.setrawtext(com.status_kitt_raw);
     
     if kitt.status.distance(1) < 100
         kitt.drive(150, 150);
