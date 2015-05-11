@@ -18,11 +18,17 @@ function [] = test_delays()
     disp(['Done.' char(10)]);
     return;
     
-    disp('Testing multiple status requests...');
-    data = test_delays_by_handle(@test_status_delay)
-    h = graph_data(data);
-    h.CurrentAxes.Title.String = 'Average succes rate for multiple status requests';
-    disp(['Done.' char(10)]);
+%     disp('Testing drive-to-rawstatus delay...');
+%     data = test_delays_by_handle(@test_drive_to_status_delay_raw)
+%     h = graph_data(data);
+%     h.CurrentAxes.Title.String = 'Average succes rate for drive-rawstatus sequence';
+%     disp(['Done.' char(10)]);
+    
+%     disp('Testing multiple status requests...');
+%     data = test_delays_by_handle(@test_status_delay)
+%     h = graph_data(data);
+%     h.CurrentAxes.Title.String = 'Average succes rate for multiple status requests';
+%     disp(['Done.' char(10)]);
     
     %Between multiple status requests
     function succes = test_status_delay(delay)
@@ -30,6 +36,17 @@ function [] = test_delays()
         pause(delay/1e3);
         status = kitt.get_status();
         if isstruct(status)
+            succes = 1;
+        else
+            succes = 0;
+        end
+    end
+
+    function succes = test_drive_to_status_delay_raw(delay)
+        status = EPOCommunications('transmit','D150 150');
+        pause(delay/1e3);
+        status = EPOCommunications('transmit','S');
+        if ischar(status) && strcmp(status(1), 'D')
             succes = 1;
         else
             succes = 0;
