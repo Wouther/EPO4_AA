@@ -18,11 +18,11 @@ classdef kitt_class < handle
             
             ntries = 0;
             while true
+                ntries = ntries + 1;
                 status_original = com.get_status();
                 if isstruct(status_original) %succeeded to get status
                     break
                 end
-                ntries = ntries + 1;
                 
                 if nargin == 1 || ... %no retry
                     (nargin == 3 && ntries == varargin{2}) %maximum n/o tries reached
