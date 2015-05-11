@@ -128,13 +128,19 @@ classdef gui_class < handle
                     'Exit KITT GUI', ...                     %Title
                     'Close connection & Exit', 'Cancel', ... %Options
                     'Close connection & Exit');              %Default
-                switch sel, 
-                    case 'Close connection & Exit',
-                        com.close();
+                switch sel
+                    case 'Close connection & Exit'
                     case 'Cancel'
-                    return 
+                        return 
                 end
+                
+                %Stop driving
+                kitt.drive(150, 150);
+                
+                %Close connection
+                com.close();
             end
+            
 
             %Check again, and exit cleanly when not connected
             if ~com.status
@@ -143,14 +149,6 @@ classdef gui_class < handle
                     stop(updater);
                 end
                 delete(updater)
-                
-                %Stop driving
-                kitt.drive(150, 150);
-                
-                %Close connection
-                if com.status
-                    com.close();
-                end
                 
                 %Close window
                 delete(self.fig);
