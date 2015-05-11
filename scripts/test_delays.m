@@ -5,17 +5,18 @@ function [] = test_delays()
     clc;
     close all;
 
-    disp('Testing dummy...');
-    data = test_delays_by_handle(@test_dummy_delay)
-    h = graph_data(data);
-    h.CurrentAxes.Title.String = 'Average succes rate for dummy';
-    disp(['Done.' char(10)]);
+%     disp('Testing dummy...');
+%     data = test_delays_by_handle(@test_dummy_delay)
+%     h = graph_data(data);
+%     h.CurrentAxes.Title.String = 'Average succes rate for dummy';
+%     disp(['Done.' char(10)]);
 
     disp('Testing drive-to-status delay...');
     data = test_delays_by_handle(@test_drive_to_status_delay)
     h = graph_data(data);
     h.CurrentAxes.Title.String = 'Average succes rate for drive-status sequence';
     disp(['Done.' char(10)]);
+    return;
     
     disp('Testing multiple status requests...');
     data = test_delays_by_handle(@test_status_delay)
@@ -81,12 +82,12 @@ end
 % succes = func(delay)
 function [data] = test_delays_by_handle(tryonce)
     %Settings (delay values in milliseconds)
-    bin.delay_min   = 100;
+    bin.delay_min   = 1;
     bin.delay_max   = 500;
     bin.nmeas       = 3; %n/o measurements per step
-    lin.startrange  = 130; %switch from binary to linear search when range this small
-    lin.stepsize    = 10; %step size for linear search
-    lin.nmeas       = 5; %n/o measurements per step
+    lin.startrange  = 100; %switch from binary to linear search when range this small
+    lin.stepsize    = 5; %step size for linear search
+    lin.nmeas       = 10; %n/o measurements per step
     pause_between   = 500; %pause between measurements
     
     %Init
@@ -97,7 +98,7 @@ function [data] = test_delays_by_handle(tryonce)
     
     range_min = 0;
     range_max = inf;
-    d = bin.delay_max;
+    d = (bin.delay_max+bin.delay_min) / 2;
     while range_max-range_min > lin.startrange
         disp(['Trying delay = ' int2str(d) 'ms, ' int2str(range_min) ...
             ' < range < ' int2str(range_max) '...']);
@@ -113,11 +114,11 @@ function [data] = test_delays_by_handle(tryonce)
         %Set next delay to try
         lev = 1.5; %leverage factor > 1
         if fails ~= 0
-            range_max = d;
-            d = 0.9*d - floor(lev*(d-bin.delay_min)/2);
-        else
             range_min = d;
             d = 1.1*d + ceil(lev*(bin.delay_max-d)/2);
+        else
+            range_max = d;
+            d = 0.9*d - floor(lev*(d-bin.delay_min)/2);
         end
         
         %End binary search if delay out of set bounds
